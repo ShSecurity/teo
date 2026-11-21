@@ -8,6 +8,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QLabel>
+#include <QFileDialog>
 
 class MainWindow : public QWidget {
     Q_OBJECT
@@ -26,23 +27,30 @@ public:
         layout->addRow("Título", &titulo_);
         layout->addRow("Fecha", &fecha_);
         layout->addRow(&guardar_);
+        layout->addRow(&importar_);
         layout->addRow(&lista_);
         layout->addRow(&estado_);
+        connect(&importar_, &QPushButton::clicked, this, [this] {
+            const auto ruta = QFileDialog::getOpenFileName(this, "Importar actividades", {}, "Archivos CSV (*.csv)");
+            if (!ruta.isEmpty())
+                emit cargaSolicitada(ruta);
+        });
         connect(&guardar_, &QPushButton::clicked, this, [this] {
             emit registroSolicitado(tipo_.currentText(), titulo_.text(), fecha_.date());
         });
     }
 
-    void mostrar(const QVector<Actividad>& actividades) {
+    void mostrar(const Actividades& actividades) {
         lista_.clear();
         for (const auto& actividad : actividades)
             lista_.addItem(QString("%1 | %2 | %3")
-                .arg(actividad.tipo, actividad.titulo, actividad.fecha.toString(Qt::ISODate)));
+                .arg(actividad->tipo(), actividad->titulo(), actividad->fecha().toString(Qt::ISODate)));
     }
 
     void indicar(const QString& mensaje) { estado_.setText(mensaje); }
 
 signals:
+    void cargaSolicitada(QString ruta);
     void registroSolicitado(QString tipo, QString titulo, QDate fecha);
 
 private:
@@ -50,6 +58,7 @@ private:
     QLineEdit titulo_;
     QDateEdit fecha_;
     QPushButton guardar_{"Registrar actividad"};
+    QPushButton importar_{"Importar CSV"};
     QListWidget lista_;
     QLabel estado_;
 };
