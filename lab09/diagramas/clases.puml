@@ -1,0 +1,59 @@
+@startuml
+!pragma layout smetana
+title Clases del seguimiento académico
+skinparam classAttributeIconSize 0
+class MainWindow {
+  +registroSolicitado(tipo, titulo, fecha)
+  +cargaSolicitada(ruta)
+  +mostrar(actividades)
+}
+class ActividadController {
+  +registrar(tipo, titulo, fecha): bool
+  +listar(): Actividades
+  +cargar(ruta): size_t
+}
+class RepositorioActividades {
+  +agregar(actividad)
+  +incorporar(lote)
+  +listar(): Actividades
+}
+abstract class Actividad {
+  +tipo(): QString
+  +titulo(): QString
+  +fecha(): QDate
+}
+class Tarea
+class Examen
+class Proyecto
+abstract class ActividadFactory {
+  +crear(titulo, fecha): unique_ptr
+  #construir(titulo, fecha): unique_ptr
+}
+class TareaFactory
+class ExamenFactory
+class ProyectoFactory
+interface IRepositorio {
+  +cargarTodo(ruta): Actividades
+}
+class CsvRepositorioAdapter
+class FuenteCsvHeredada {
+  +obtenerRegistrosCrudos(ruta): QStringList
+}
+MainWindow ..> ActividadController : conexión en main
+ActividadController --> RepositorioActividades
+ActividadController --> IRepositorio
+ActividadController ..> ActividadFactory : crearActividad
+RepositorioActividades "1" *-- "*" Actividad
+Actividad <|-- Tarea
+Actividad <|-- Examen
+Actividad <|-- Proyecto
+ActividadFactory <|-- TareaFactory
+ActividadFactory <|-- ExamenFactory
+ActividadFactory <|-- ProyectoFactory
+TareaFactory ..> Tarea : construye
+ExamenFactory ..> Examen : construye
+ProyectoFactory ..> Proyecto : construye
+IRepositorio <|.. CsvRepositorioAdapter
+CsvRepositorioAdapter *-- FuenteCsvHeredada
+CsvRepositorioAdapter ..> ActividadFactory : crearActividad
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+title Flujos de seguimiento académico
+actor Estudiante as U
+participant MainWindow as V
+participant ActividadController as C
+participant ActividadFactory as F
+participant RepositorioActividades as R
+participant CsvRepositorioAdapter as A
+participant FuenteCsvHeredada as L
+
+== Crear ==
+U -> V : pulsa Registrar actividad
+V -> C : registroSolicitado (conexión en main)
+C -> F : crearActividad(tipo, titulo, fecha)
+F -> F : validar y construir con fábrica concreta
+alt datos válidos
+  F --> C : actividad
+  C -> R : agregar(actividad)
+  C --> V : true
+else datos inválidos
+  F --> C : nullptr
+  C --> V : false
+end
+
+== Listar ==
+V -> C : listar (conexión en main)
+C -> R : listar()
+R --> C : referencia de solo lectura
+C --> V : actividades
+V -> V : mostrar(actividades)
+
+== Cargar ==
+U -> V : elige un archivo CSV
+V -> C : cargaSolicitada (conexión en main)
+C -> A : cargarTodo(ruta) vía IRepositorio
+A -> L : obtenerRegistrosCrudos(ruta)
+L --> A : líneas
+loop por cada registro
+  A -> F : crearActividad(tipo, titulo, fecha)
+  F --> A : actividad o nullptr
+end
+alt CSV válido
+  A --> C : lote
+  C -> R : incorporar(lote)
+  C --> V : cantidad importada
+  ref over V, R : Listar y actualizar la vista
+else lectura o registro inválido
+  A --> C : excepción
+  C --> V : error capturado en main
+  V -> V : mostrar mensaje
+end
+@enduml

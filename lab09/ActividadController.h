@@ -1,6 +1,7 @@
 #pragma once
 
-#include "CsvRepositorioAdapter.h"
+#include "ActividadFactory.h"
+#include "IRepositorio.h"
 
 class ActividadController {
 public:

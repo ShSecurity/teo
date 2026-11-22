@@ -1,16 +1,11 @@
 #pragma once
 
 #include "ActividadFactory.h"
+#include "IRepositorio.h"
 #include <QFile>
 #include <QTextStream>
 #include <QStringList>
 #include <stdexcept>
-
-class IRepositorio {
-public:
-    virtual ~IRepositorio() = default;
-    virtual Actividades cargarTodo(const QString& ruta) const = 0;
-};
 
 class FuenteCsvHeredada {
 public:
